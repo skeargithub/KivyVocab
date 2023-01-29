@@ -1,0 +1,130 @@
+#:kivy 1.0.9
+
+WindowManager:
+    MainWindow:
+    SecondWindow:
+    ThirdWindow:
+
+<MainWindow>:
+    name: "main"
+    Button:
+        text:"Begin"
+        on_release:
+            app.root.current = "second"
+            root.manager.transition.direction = "left"
+
+<SecondWindow>:
+    name: "second"
+    on_pre_enter:
+        app.set_words(self,testing_word, choice_1, choice_2, choice_3, choice_4, choice_5)
+        choice_1.background_color = (1,1,1,1)
+        choice_2.background_color = (1,1,1,1)
+        choice_3.background_color = (1,1,1,1)
+        choice_4.background_color = (1,1,1,1)
+        choice_5.background_color = (1,1,1,1)
+    BoxLayout:
+        orientation:'vertical'
+        BoxLayout:
+            size_hint_y:1
+            Label:
+                id: testing_word
+                text:''
+                font_name: "NanumGothic.ttf"
+        BoxLayout:
+            size_hint_y:.4
+            Button:
+                id:choice_1
+                text:app.word_dict[app.kor_word_list[0]]
+                on_press:
+                    app.check_correct(self, testing_word) if choice_1.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
+                    app.root.current = "third" if choice_1.background_color == [0,1,0,1] else "second"                                                                       
+                    choice_1.background_color = (0,1,0,1) if choice_1.text == app.word_dict[testing_word.text] else (1,0,0,1)
+            Button:
+                id:choice_2
+                text:app.multiple_choice_2
+                on_press:
+                    app.check_correct(self, testing_word) if choice_2.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
+                    app.root.current = "third" if choice_2.background_color == [0,1,0,1] else "second"                                                                       
+                    choice_2.background_color = (0,1,0,1) if choice_2.text == app.word_dict[testing_word.text] else (1,0,0,1)
+            Button:
+                id:choice_3
+                text:app.multiple_choice_3
+                on_press:
+                    app.check_correct(self, testing_word) if choice_3.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
+                    app.root.current = "third" if choice_3.background_color == [0,1,0,1] else "second"                                                                       
+                    choice_3.background_color = (0,1,0,1) if choice_3.text == app.word_dict[testing_word.text] else (1,0,0,1)
+                
+        BoxLayout:
+            size_hint_y:.4
+            Button:
+                id:choice_4
+                text:app.multiple_choice_4
+                on_press:
+                    app.check_correct(self, testing_word) if choice_4.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
+                    app.root.current = "third" if choice_4.background_color == [0,1,0,1] else "second"                                                                       
+                    choice_4.background_color = (0,1,0,1) if choice_4.text == app.word_dict[testing_word.text] else (1,0,0,1)
+            Button:
+                id:choice_5
+                text:app.multiple_choice_5
+                on_press:
+                    app.check_correct(self, testing_word) if choice_5.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
+                    app.root.current = "third" if choice_5.background_color == [0,1,0,1] else "second"                                                                       
+                    choice_5.background_color = (0,1,0,1) if choice_5.text == app.word_dict[testing_word.text] else (1,0,0,1)
+
+<ThirdWindow>:
+    name: "third"
+    on_pre_enter:
+        app.set_words(self,testing_word, choice_1, choice_2, choice_3, choice_4, choice_5)
+        choice_1.background_color = (1,1,1,1)
+        choice_2.background_color = (1,1,1,1)
+        choice_3.background_color = (1,1,1,1)
+        choice_4.background_color = (1,1,1,1)
+        choice_5.background_color = (1,1,1,1)
+    BoxLayout:
+        orientation:'vertical'
+        BoxLayout:
+            size_hint_y:1
+            Label:
+                id: testing_word
+                text:app.kor_word_list[1]
+                font_name: "NanumGothic.ttf"
+        BoxLayout:
+            size_hint_y:.4
+            Button:
+                id:choice_1
+                text:app.word_dict[app.kor_word_list[1]]
+                on_press:
+                    app.check_correct(self, testing_word) if choice_1.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
+                    app.root.current = "second" if choice_1.background_color == [0,1,0,1] else "third"                                                                       
+                    choice_1.background_color = (0,1,0,1) if choice_1.text == app.word_dict[testing_word.text] else (1,0,0,1)
+            Button:
+                id:choice_2
+                text:app.multiple_choice_2
+                on_press:
+                    app.check_correct(self, testing_word) if choice_2.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
+                    app.root.current = "second" if choice_2.background_color == [0,1,0,1] else "third"                                                                       
+                    choice_2.background_color = (0,1,0,1) if choice_2.text == app.word_dict[testing_word.text] else (1,0,0,1)
+            Button:
+                id:choice_3
+                text:app.multiple_choice_3
+                on_press:
+                    app.check_correct(self, testing_word) if choice_3.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
+                    app.root.current = "second" if choice_3.background_color == [0,1,0,1] else "third"                                                                       
+                    choice_3.background_color = (0,1,0,1) if choice_3.text == app.word_dict[testing_word.text] else (1,0,0,1)
+                
+        BoxLayout:
+            size_hint_y:.4
+            Button:
+                id:choice_4
+                text:app.multiple_choice_4
+                on_press:
+                    app.check_correct(self, testing_word) if choice_4.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
+                    app.root.current = "second" if choice_4.background_color == [0,1,0,1] else "third"                                                                       
+                    choice_4.background_color = (0,1,0,1) if choice_4.text == app.word_dict[testing_word.text] else (1,0,0,1)
+            Button:
+                id:choice_5
+                text:app.multiple_choice_5
+                on_press:
+                    app.check_correct(self, testing_word) if choice_5.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
+                    app.root.current = "second" if choice_5.background_color == [0,1,0,1] else "third"                                                                       
+                    choice_5.background_color = (0,1,0,1) if choice_5.text == app.word_dict[testing_word.text] else (1,0,0,1)
