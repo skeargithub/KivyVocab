@@ -1,22 +1,53 @@
 #:kivy 1.0.9
-
+#:import Factory kivy.factory.Factory
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+#:import SlideTransition kivy.uix.screenmanager.SlideTransition
 WindowManager:
     MainWindow:
     SecondWindow:
     ThirdWindow:
+    EndScreen:
+    OptionsScreen:
+    GraphScreen:
+
+<MyPopup@Popup>
+    auto_dismiss: True
+    size_hint:.7,1
+    pos_hint:{"x":.15}
 
 <MainWindow>:
     name: "main"
-    Button:
-        text:"Begin"
-        on_release:
-            app.root.current = "second"
-            root.manager.transition.direction = "left"
+    BoxLayout:
+        orientation:"vertical"
+        BoxLayout:
+            size_hint_y:.8
+            Button:
+                text:"Begin"
+                on_press:
+                    app.change_transition("left")
+                on_release:
+                    app.root.current = "second"
+
+        BoxLayout:
+            size_hint_y:.1
+            Button:
+                text:"Status"
+                on_press:
+                    app.change_transition("right")
+                on_release:
+                    app.root.current="options"
+            Button:
+                text:"Graph"
+                on_press:app.root.current="graph_screen"
+            Button:
+                text:"Exit"
+                on_press: app.stop()
+
 
 <SecondWindow>:
     name: "second"
     on_pre_enter:
-        app.set_words(self,testing_word, choice_1, choice_2, choice_3, choice_4, choice_5)
+        app.set_words(self,testing_word, choice_1, choice_2, choice_3, choice_4, choice_5, progress_bar)
         choice_1.background_color = (1,1,1,1)
         choice_2.background_color = (1,1,1,1)
         choice_3.background_color = (1,1,1,1)
@@ -24,31 +55,44 @@ WindowManager:
         choice_5.background_color = (1,1,1,1)
     BoxLayout:
         orientation:'vertical'
+        ProgressBar:
+            id: progress_bar
+            min:0
+            max:1
+            size_hint_y:.1
+            size_hint_x: .9
+            pos_hint: {'x':.05}
         BoxLayout:
             size_hint_y:1
             Label:
                 id: testing_word
-                text:''
+                font_size: 0.3*self.height
                 font_name: "NanumGothic.ttf"
         BoxLayout:
             size_hint_y:.4
             Button:
                 id:choice_1
-                text:app.word_dict[app.kor_word_list[0]]
+                text_size:root.width/5, None
+                halign:"center"
+                valign:"middle"
                 on_press:
                     app.check_correct(self, testing_word) if choice_1.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
                     app.root.current = "third" if choice_1.background_color == [0,1,0,1] else "second"                                                                       
                     choice_1.background_color = (0,1,0,1) if choice_1.text == app.word_dict[testing_word.text] else (1,0,0,1)
             Button:
                 id:choice_2
-                text:app.multiple_choice_2
+                text_size:root.width/5, None
+                halign:"center"
+                valign:"middle"
                 on_press:
                     app.check_correct(self, testing_word) if choice_2.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
                     app.root.current = "third" if choice_2.background_color == [0,1,0,1] else "second"                                                                       
                     choice_2.background_color = (0,1,0,1) if choice_2.text == app.word_dict[testing_word.text] else (1,0,0,1)
             Button:
                 id:choice_3
-                text:app.multiple_choice_3
+                text_size:root.width/5, None
+                halign:"center"
+                valign:"middle"
                 on_press:
                     app.check_correct(self, testing_word) if choice_3.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
                     app.root.current = "third" if choice_3.background_color == [0,1,0,1] else "second"                                                                       
@@ -58,14 +102,18 @@ WindowManager:
             size_hint_y:.4
             Button:
                 id:choice_4
-                text:app.multiple_choice_4
+                text_size:root.width/5, None
+                halign:"center"
+                valign:"middle"
                 on_press:
                     app.check_correct(self, testing_word) if choice_4.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
                     app.root.current = "third" if choice_4.background_color == [0,1,0,1] else "second"                                                                       
                     choice_4.background_color = (0,1,0,1) if choice_4.text == app.word_dict[testing_word.text] else (1,0,0,1)
             Button:
                 id:choice_5
-                text:app.multiple_choice_5
+                text_size:root.width/5, None
+                halign:"center"
+                valign:"middle"
                 on_press:
                     app.check_correct(self, testing_word) if choice_5.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
                     app.root.current = "third" if choice_5.background_color == [0,1,0,1] else "second"                                                                       
@@ -74,39 +122,52 @@ WindowManager:
 <ThirdWindow>:
     name: "third"
     on_pre_enter:
-        app.set_words(self,testing_word, choice_1, choice_2, choice_3, choice_4, choice_5)
+        app.set_words(self,testing_word, choice_1, choice_2, choice_3, choice_4, choice_5,progress_bar)
         choice_1.background_color = (1,1,1,1)
         choice_2.background_color = (1,1,1,1)
         choice_3.background_color = (1,1,1,1)
         choice_4.background_color = (1,1,1,1)
         choice_5.background_color = (1,1,1,1)
-    BoxLayout:
+    BoxLayout:        
         orientation:'vertical'
+        ProgressBar:
+            id: progress_bar
+            min:0
+            max:1
+            size_hint_y:.1
+            size_hint_x: .9
+            pos_hint: {'x':.05}
         BoxLayout:
             size_hint_y:1
             Label:
                 id: testing_word
-                text:app.kor_word_list[1]
+                font_size: 0.3*self.height
                 font_name: "NanumGothic.ttf"
         BoxLayout:
             size_hint_y:.4
             Button:
                 id:choice_1
-                text:app.word_dict[app.kor_word_list[1]]
+                text_size:root.width/5, None
+                halign:"center"
+                valign:"middle"
                 on_press:
                     app.check_correct(self, testing_word) if choice_1.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
                     app.root.current = "second" if choice_1.background_color == [0,1,0,1] else "third"                                                                       
                     choice_1.background_color = (0,1,0,1) if choice_1.text == app.word_dict[testing_word.text] else (1,0,0,1)
             Button:
                 id:choice_2
-                text:app.multiple_choice_2
+                text_size:root.width/5, None
+                halign:"center"
+                valign:"middle"
                 on_press:
                     app.check_correct(self, testing_word) if choice_2.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
                     app.root.current = "second" if choice_2.background_color == [0,1,0,1] else "third"                                                                       
                     choice_2.background_color = (0,1,0,1) if choice_2.text == app.word_dict[testing_word.text] else (1,0,0,1)
             Button:
                 id:choice_3
-                text:app.multiple_choice_3
+                text_size:root.width/5, None
+                halign:"center"
+                valign:"middle"
                 on_press:
                     app.check_correct(self, testing_word) if choice_3.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
                     app.root.current = "second" if choice_3.background_color == [0,1,0,1] else "third"                                                                       
@@ -116,15 +177,176 @@ WindowManager:
             size_hint_y:.4
             Button:
                 id:choice_4
-                text:app.multiple_choice_4
+                text_size:root.width/5, None
+                halign:"center"
+                valign:"middle"
                 on_press:
                     app.check_correct(self, testing_word) if choice_4.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
                     app.root.current = "second" if choice_4.background_color == [0,1,0,1] else "third"                                                                       
                     choice_4.background_color = (0,1,0,1) if choice_4.text == app.word_dict[testing_word.text] else (1,0,0,1)
             Button:
                 id:choice_5
-                text:app.multiple_choice_5
+                text_size:root.width/5, None
+                halign:"center"
+                valign:"middle"
                 on_press:
                     app.check_correct(self, testing_word) if choice_5.background_color == [1,1,1,1] else app.get_counter(self,testing_word)
                     app.root.current = "second" if choice_5.background_color == [0,1,0,1] else "third"                                                                       
                     choice_5.background_color = (0,1,0,1) if choice_5.text == app.word_dict[testing_word.text] else (1,0,0,1)
+
+<EndScreen>:
+    name:"end"
+    on_pre_enter:
+        app.increase_daily(daily_counter_label)
+    BoxLayout:
+        orientation:"vertical"
+        Label:
+            size_hint_y:.25
+            text:"End"
+        Label:
+            id:daily_counter_label
+            size_hint_y:.1
+        Button:
+            text:"Home"
+            on_press:
+                app.root.current="main"
+                app.reset_counter(self)
+
+<OptionsScreen>:
+    name:"options"
+    on_pre_enter:
+        app.get_progress(self,conf5button,conf4button,conf3button,conf2button,conf1button,conf0button)    
+    BoxLayout:
+        orientation:"vertical"
+        BoxLayout:
+            Button:
+                id:conf5label
+                text:"5 Confidence"
+                size_hint_x:1
+                background_color:(0,0,0,0)
+                text_color:(1,1,1,1)
+                on_press:
+                    app.reset_expand(conf5button,conf5label) if conf5button.size_hint_x == .7 else app.do_nothing()
+            Button:
+                id:conf5button
+                font_name: "NanumGothic.ttf"
+                text_size:root.width/5, None
+                halign:"center"
+                valign:"middle"
+                size_hint_x: 1
+                on_press:
+                    app.open_popup(conf5label) if conf5button.size_hint_x == .7 else app.expand(self,conf5label)
+
+        BoxLayout:
+            orientation:"horizontal"
+            Button:
+                id:conf4label
+                text:"4 Confidence"
+                size_hint_x:1
+                background_color:(0,0,0,0)
+                text_color:(1,1,1,1)
+                on_press:
+                    app.reset_expand(conf4button,conf4label) if conf4button.size_hint_x == .7 else app.do_nothing()
+            Button:
+                id:conf4button
+                font_name: "NanumGothic.ttf"
+                text_size:root.width/5, None
+                halign:"center"
+                valign:"middle"
+                size_hint_x: 1
+                on_press:
+                    app.open_popup(conf4label) if conf4button.size_hint_x == .7 else app.expand(self,conf4label)
+        BoxLayout:
+            orientation:"horizontal"
+            Button:
+                id:conf3label
+                text:"3 Confidence"
+                size_hint_x:1
+                background_color:(0,0,0,0)
+                text_color:(1,1,1,1)
+                on_press:
+                    app.reset_expand(conf3button,conf3label) if conf3button.size_hint_x == .7 else app.do_nothing()
+            Button:
+                id:conf3button
+                font_name: "NanumGothic.ttf"
+                text_size:root.width/5, None
+                halign:"center"
+                valign:"middle"
+                size_hint_x: 1
+                on_press:
+                    app.open_popup(conf3label) if conf3button.size_hint_x == .7 else app.expand(self,conf3label)
+        BoxLayout:
+            orientation:"horizontal"
+            Button:
+                id:conf2label
+                text:"2 Confidence"
+                size_hint_x:1
+                background_color:(0,0,0,0)
+                text_color:(1,1,1,1)
+                on_press:
+                    app.reset_expand(conf2button,conf2label) if conf2button.size_hint_x == .7 else app.do_nothing()
+            Button:
+                id:conf2button
+                font_name: "NanumGothic.ttf"
+                text_size:root.width/5, None
+                halign:"center"
+                valign:"middle"
+                size_hint_x: 1
+                on_press:
+                    app.open_popup(conf2label) if conf2button.size_hint_x == .7 else app.expand(self,conf2label)
+        BoxLayout:
+            orientation:"horizontal"
+            Button:
+                id:conf1label
+                text:"1 Confidence"
+                size_hint_x:1
+                background_color:(0,0,0,0)
+                text_color:(1,1,1,1)
+                on_press:
+                    app.reset_expand(conf1button,conf1label) if conf1button.size_hint_x == .7 else app.do_nothing()
+            Button:
+                id:conf1button
+                font_name: "NanumGothic.ttf"
+                text_size:root.width/5, None
+                halign:"center"
+                valign:"middle"
+                size_hint_x: 1
+                on_press:
+                    app.open_popup(conf1label) if conf1button.size_hint_x == .7 else app.expand(self,conf1label)
+        BoxLayout:
+            Button:
+                id:conf0label
+                text:"0 Confidence"
+                size_hint_x:1
+                background_color:(0,0,0,0)
+                text_color:(1,1,1,1)
+                on_press:
+                    app.reset_expand(conf0button,conf0label) if conf0button.size_hint_x == .7 else app.do_nothing()
+            Button:
+                id:conf0button
+                font_name: "NanumGothic.ttf"
+                text_size:root.width/5, None
+                halign:"center"
+                valign:"middle"
+                size_hint_x: 1
+                on_press:
+                    app.open_popup(conf0label) if conf0button.size_hint_x == .7 else app.expand(self,conf0label)
+
+<GraphScreen>:
+    name:"graph_screen"
+    on_pre_enter:
+        app.draw_graph(testbox)
+    BoxLayout:
+        orientation:"vertical"
+        BoxLayout:
+            id:testbox
+            size_hint_y:.9
+            pos_hint:{"y":.2}
+        BoxLayout:
+            id:box2
+            size_hint_y:.1
+            Button:
+                id:back
+                text:"Home"
+                on_press:
+                    app.root.current="main"

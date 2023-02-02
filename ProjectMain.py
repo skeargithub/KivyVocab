@@ -2,13 +2,25 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.label import Label
 from kivy.properties import StringProperty
-from kivy.uix.screenmanager import ScreenManager,Screen
+from kivy.uix.screenmanager import ScreenManager,Screen,SlideTransition,NoTransition
 from kivy.properties import ListProperty
 from kivy.properties import DictProperty
+from kivy.uix.boxlayout import BoxLayout
+from kivy.core.window import Window
+from kivy.factory import Factory
+from kivy.uix.popup import Popup
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.floatlayout import FloatLayout
+from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
+import matplotlib.pyplot as plt
 import sqlite3 as sql
 import random
 from random import choice
 from random import shuffle
+from kivy.config import Config
+import pickle
+from datetime import date,timedelta
+
 
 class MainWindow(Screen):
     pass
@@ -19,58 +31,104 @@ class SecondWindow(Screen):
 class ThirdWindow(Screen):
     pass
 
+class EndScreen(Screen):
+    pass
+
+class OptionsScreen(Screen):
+    pass
+
+class GraphScreen(Screen):
+    pass
+
 class WindowManager(ScreenManager):
     pass
 
 
 class ProjectApp(App):
-    test_word= StringProperty('')
     kor_word_list = ListProperty()
     word_dict = DictProperty()
     usable_words = ListProperty()
-    multiple_choice_1 = StringProperty('')
-    multiple_choice_2 = StringProperty('')
-    multiple_choice_3 = StringProperty('')
-    multiple_choice_4 = StringProperty('')
-    multiple_choice_5 = StringProperty('')
+    Config.set("kivy", "exit_on_escape", "0")
     def build(self):
         self.counter = 0
         self.kor_word_list, self.word_dict, self.usable_words = create_list() ##function returns list, dict, list
         self.rand_word = get_rand_word(self.usable_words)
-        self.test_word = "Choice1"
-        self.multiple_choice_1 = "Choice1"
-        self.multiple_choice_2 = choice(self.usable_words)[1]
-        self.multiple_choice_3 = choice(self.usable_words)[1]
-        self.multiple_choice_4 = choice(self.usable_words)[1]
-        self.multiple_choice_5 = choice(self.usable_words)[1]
+
         self.update_dict = {}
         self.root = Builder.load_file('mainkv.kv')
+        
+        self._keyboard = Window.request_keyboard(self._keyboard_closed, self.root)
+        self._keyboard.bind(on_key_down=self._on_keyboard_down)
+
         return self.root
     
-    def on_button_press(self,screen,testing_word):
-        pass
+    def _keyboard_closed(self):
+        self._keyboard.unbind(on_key_down=self._on_keyboard_down)
+        self._keyboard = None
 
-    def set_words(self, screen, testing_word, choice_1, choice_2, choice_3, choice_4, choice_5):
-        testing_word.text = self.kor_word_list[self.counter]
-        self.update_dict[testing_word.text] = 0
-        #print(testing_word.text)
-        correct_translation = self.word_dict[testing_word.text]
-        #print(correct_translation)
-        correct_and_random = []
-        for i in range(4):
-            word = choice(self.usable_words)[1]
-            correct_and_random.append(word)
-        correct_and_random.append(correct_translation)
-        choice_1.text = str(choice(correct_and_random))
-        correct_and_random.remove(choice_1.text)
-        choice_2.text = str(choice(correct_and_random))
-        correct_and_random.remove(choice_2.text)
-        choice_3.text = str(choice(correct_and_random))
-        correct_and_random.remove(choice_3.text)
-        choice_4.text = str(choice(correct_and_random))
-        correct_and_random.remove(choice_4.text)
-        choice_5.text = str(choice(correct_and_random))
-        correct_and_random.remove(choice_5.text)
+    def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+        print(keycode)
+        if keycode[0] == 27:
+            ScreenManager.transition = SlideTransition()
+            ScreenManager.transition.direction = "up"
+            self.root.current = "main"
+
+        
+    def reset_counter(self,end):
+        self.counter =0
+        self.kor_word_list, self.word_dict, self.usable_words = create_list()
+        self.rand_word = get_rand_word(self.usable_words)
+
+    def set_words(self, screen, testing_word, choice_1, choice_2, choice_3, choice_4, choice_5, progress_bar):
+        ScreenManager.transition = SlideTransition()
+        ScreenManager.transition.direction = "left"
+        progress_bar.value = (self.counter/len(self.kor_word_list))
+        print("list len is " + str(len(self.kor_word_list)))
+        print("counter is " + str(self.counter))
+        if self.counter == len(self.kor_word_list):
+            self.root.current = "end"
+            print("here")
+        else:
+            testing_word.text = self.kor_word_list[self.counter]
+            self.update_dict[testing_word.text] = 0
+            #print(testing_word.text)
+            correct_translation = self.word_dict[testing_word.text]
+            #print(correct_translation)
+            correct_and_random = []
+            for i in range(4):
+                word = choice(self.usable_words)[1]
+                correct_and_random.append(word)
+            correct_and_random.append(correct_translation)
+            choice_1.text = str(choice(correct_and_random))
+            correct_and_random.remove(choice_1.text)
+            choice_2.text = str(choice(correct_and_random))
+            correct_and_random.remove(choice_2.text)
+            choice_3.text = str(choice(correct_and_random))
+            correct_and_random.remove(choice_3.text)
+            choice_4.text = str(choice(correct_and_random))
+            correct_and_random.remove(choice_4.text)
+            choice_5.text = str(choice(correct_and_random))
+            correct_and_random.remove(choice_5.text)
+        con = sql.connect("vocab_data.db")
+        cur = con.cursor()
+        conf5 = cur.execute("SELECT * FROM Vocab WHERE Confidence = 5").fetchall()
+        num_conf5 = len(conf5)
+        conf4 = cur.execute("SELECT * FROM Vocab WHERE Confidence = 4").fetchall()
+        num_conf4 = len(conf4)
+        conf3 = cur.execute("SELECT * FROM Vocab WHERE Confidence = 3").fetchall()
+        num_conf3 = len(conf3)
+        conf2 = cur.execute("SELECT * FROM Vocab WHERE Confidence = 2").fetchall()
+        num_conf2 = len(conf2)
+        conf1 = cur.execute("SELECT * FROM Vocab WHERE Confidence = 1").fetchall()
+        num_conf1 = len(conf1)
+        score = ((num_conf5*5)+(num_conf4*4)+(num_conf3*3)+(num_conf2*2)+(num_conf1*1))
+        with open('score_dict.pkl','rb') as f:
+            score_dict = pickle.load(f)
+        today = date.today()
+        YYMMDD = today.strftime("%Y%m%d")
+        score_dict[YYMMDD]=score
+        with open("score_dict.pkl","wb") as f:
+            pickle.dump(score_dict,f)
 
 
     def inc_counter(self):
@@ -107,6 +165,135 @@ class ProjectApp(App):
                 cur.execute("UPDATE Vocab SET Confidence = Confidence - 1 WHERE Korean = ? AND Confidence > 0",(test_word,))
                 con.commit()
         self.update_dict[test_word] = 1
+
+    def get_progress(self,options,conf5button,conf4button,conf3button,conf2button,conf1button,conf0button):
+        con = sql.connect("vocab_data.db")
+        cur = con.cursor()
+        conf5 = cur.execute("SELECT * FROM Vocab WHERE Confidence = 5").fetchall()
+        num_conf5 = len(conf5)
+        conf4 = cur.execute("SELECT * FROM Vocab WHERE Confidence = 4").fetchall()
+        num_conf4 = len(conf4)
+        conf3 = cur.execute("SELECT * FROM Vocab WHERE Confidence = 3").fetchall()
+        num_conf3 = len(conf3)
+        conf2 = cur.execute("SELECT * FROM Vocab WHERE Confidence = 2").fetchall()
+        num_conf2 = len(conf2)
+        conf1 = cur.execute("SELECT * FROM Vocab WHERE Confidence = 1").fetchall()
+        num_conf1 = len(conf1)
+        conf0 = cur.execute("SELECT * FROM Vocab WHERE Confidence = 0").fetchall()
+        num_conf0 = len(conf0)
+        conf5button.text = str(num_conf5) + " words"
+        conf4button.text = str(num_conf4) + " words"
+        conf3button.text = str(num_conf3) + " words"
+        conf2button.text = str(num_conf2) + " words"
+        conf1button.text = str(num_conf1) + " words"
+        conf0button.text = str(num_conf0) + " words"
+
+
+    def expand(self,button,confidence_label):
+        con = sql.connect("vocab_data.db")
+        cur = con.cursor() 
+        level = confidence_label.text[0]
+        words_list = cur.execute("SELECT * FROM Vocab WHERE Confidence = ?",(level,)).fetchall()
+        words_list = words_list[:48]
+        if len(words_list) > 50:
+            button.text = "50+ words"
+            button.size_hint_x = .7
+            confidence_label.size_hint_x = .3
+        else:
+            print("HERE")
+            print(words_list)
+            string = ""
+            for i in words_list:
+                string = string + i[0] + ", "
+            button.text = string
+            button.size_hint_x = .7
+            confidence_label.size_hint_x = .3
+            button.text_size = button.width,None
+
+
+
+    def reset_expand(self,button,confidence_label):
+        print("GOT HERE")
+        button.size_hint_x =1
+        confidence_label.size_hint_x = 1
+        con = sql.connect("vocab_data.db")
+        cur = con.cursor() 
+        level = confidence_label.text[0]
+        words_list = cur.execute("SELECT * FROM Vocab WHERE Confidence = ?",(level,)).fetchall()
+        num_words_list = len(words_list)
+        button.text = str(num_words_list) + " words"
+
+    def do_nothing(self):
+        print("GOT TO DO NOTHING")
+        
+    def open_popup(self,conf5label):
+        level = conf5label.text[0]
+        con = sql.connect("vocab_data.db")
+        cur = con.cursor()
+        words_list = cur.execute("SELECT * FROM Vocab WHERE Confidence = ?",(level,)).fetchall()
+        print(words_list)
+        superBox = BoxLayout(orientation="vertical")
+        scrollBox = ScrollView()
+        superBox2 = BoxLayout(orientation="vertical",size_hint_y=None,pos_hint={"y":.9})
+        superBox2.bind(minimum_height=superBox2.setter("height"))
+        for i in words_list:
+            hbox = BoxLayout(orientation="horizontal",size_hint_y=None)
+            lbl1 = Label(text = i[1],font_name="NanumGothic.ttf")
+            lbl2 = Label(text=i[0],font_name="NanumGothic.ttf")
+            hbox.add_widget(lbl1)
+            hbox.add_widget(lbl2)
+            superBox2.add_widget(hbox)
+        scrollBox.add_widget(superBox2)
+        superBox.add_widget(scrollBox)
+        popup = Popup(title="Words",auto_dismiss=True,size_hint=(.7,1),pos_hint={"x":.15},content=superBox)
+        popup.open()
+
+
+    def change_transition(self,text):
+        if text == "left":
+            ScreenManager.transition = SlideTransition()
+            ScreenManager.transition.direction="left"
+        if text =="right":
+            ScreenManager.transition = SlideTransition()
+            ScreenManager.transition.direction = "right"
+
+    def draw_graph(self,testbox):
+        testbox.clear_widgets()
+        with open("score_dict.pkl","rb") as f:
+            score=pickle.load(f)
+        print(score)
+        x=[]
+        y=[]
+        for i in score:
+            x.append(i)
+            y.append(score[i])
+        plt.plot(x,y)
+        plt.ylabel("Score")
+        plt.xlabel("Time")
+        testbox.add_widget(FigureCanvasKivyAgg(plt.gcf()))
+
+    def increase_daily(self,label):
+        with open("daily_check_in.pkl","rb") as f:
+            check_daily = pickle.load(f)
+        print(check_daily)
+        last_check_in = check_daily["last_check_in"]
+        days_in_a_row = check_daily["days_in_a_row"]
+        today = date.today()
+        yesterday = today - timedelta(days=1)
+        try:
+            print(check_daily[today])
+            print("tried") 
+        except KeyError:
+            if last_check_in == yesterday:
+                check_daily["days_in_a_row"] = days_in_a_row+1
+            check_daily["last_check_in"] = today
+            check_daily[today] = 1
+            print("excepted")
+        with open("daily_check_in.pkl","wb") as f:
+            pickle.dump(check_daily,f)
+        print(check_daily)
+        label.text = str(check_daily["days_in_a_row"]) + " days in a row"
+
 
 
 
@@ -199,6 +386,7 @@ def create_list():
         word_dict[randword[0]]=randword[1]
     print(word_dict)
     shuffle(kor_word_list)
+    ##kor_word_list = kor_word_list[:2]
     return kor_word_list, word_dict, usable_words
 
 
