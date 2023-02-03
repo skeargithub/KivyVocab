@@ -125,7 +125,12 @@ class ProjectApp(App):
             score_dict = pickle.load(f)
         today = date.today()
         YYMMDD = today.strftime("%Y%m%d")
-        score_dict[YYMMDD]=score
+        today_time_tuple = today.timetuple()
+        today_year_day = str(today_time_tuple.tm_yday)
+        while len(today_year_day) < 3:
+            today_year_day = "0" + today_year_day
+        today_year_day = "23" + today_year_day
+        score_dict[today_year_day]=score
         with open("score_dict.pkl","wb") as f:
             pickle.dump(score_dict,f)
 
