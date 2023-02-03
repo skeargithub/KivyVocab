@@ -2,6 +2,7 @@
 #:import Factory kivy.factory.Factory
 #:import NoTransition kivy.uix.screenmanager.NoTransition
 #:import SlideTransition kivy.uix.screenmanager.SlideTransition
+#.import MeshLinePlot kivy.garden.graph.LinePlot
 WindowManager:
     MainWindow:
     SecondWindow:
@@ -333,15 +334,21 @@ WindowManager:
                     app.open_popup(conf0label) if conf0button.size_hint_x == .7 else app.expand(self,conf0label)
 
 <GraphScreen>:
+    # canvas.before:
+    #     Color: 
+    #         rgb:[1,1,1,1]
+    #     Rectangle:
+    #         size:self.size
     name:"graph_screen"
     on_pre_enter:
         app.draw_graph(testbox)
     BoxLayout:
         orientation:"vertical"
+        
         BoxLayout:
             id:testbox
-            size_hint_y:.9
-            pos_hint:{"y":.2}
+            size_hint_y:.8
+            background_color:(0,0,0,0)
         BoxLayout:
             id:box2
             size_hint_y:.1
